@@ -1,0 +1,1 @@
+export type InputEventCallback = (e: MouseEvent) => void
