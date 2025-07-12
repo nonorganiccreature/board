@@ -1,5 +1,5 @@
 import type { Rect } from "../types";
-import { extractRectanglePoints } from "../utils/points";
+import { extractRectanglePoints } from "../utils";
 import { Shape } from "./shape";
 
 export class Rectangle extends Shape {

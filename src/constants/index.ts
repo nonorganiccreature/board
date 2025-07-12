@@ -5,4 +5,5 @@ export {
   BORDER_WIDTH,
   EPSILON,
   CONNECTION_LINE_WIDTH,
+  CONNECTION_POINT_SIZE
 } from "./config";

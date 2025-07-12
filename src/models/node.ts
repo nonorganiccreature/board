@@ -15,7 +15,7 @@ import {
   angleBetween,
   normalize,
   rotatePoint,
-} from "../utils/math";
+} from "../utils";
 
 export class Node {
   shape: Drawable;

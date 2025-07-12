@@ -3,9 +3,9 @@ import { Rectangle } from "../models";
 import { zeroPoint, mapToCanvasCoordinates, subtractPoints } from "../utils";
 import { Node } from "../models";
 import { InputService } from "../services";
-import { pointInReactangle } from "../utils/points";
+import { pointInReactangle } from "../utils";
 import type { Point, Rect } from "../types";
-import { CONNECTION_POINT_SIZE } from "../constants/config";
+import { CONNECTION_POINT_SIZE } from "../constants";
 
 export class Application {
   canvas: HTMLCanvasElement | undefined;

@@ -5,7 +5,7 @@ import { BORDER_WIDTH } from "../constants";
 import { Rectangle } from "../models";
 import { DrawableShape } from "./";
 import { addPoints, zeroPoint, mapToCanvasCoordinates } from "../utils";
-import { CONNECTION_POINT_SIZE } from "../constants/config";
+import { CONNECTION_POINT_SIZE } from "../constants";
 
 export class DrawableRectangle extends DrawableShape implements Drawable {
   borderColor: string = "#000";
