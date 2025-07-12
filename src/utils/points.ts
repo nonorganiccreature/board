@@ -12,6 +12,7 @@ import {
   connectionAngeNotPerpendicularErrorText,
   CONNECTION_LINE_PADDING,
   EPSILON,
+  CONNECTION_LINE_WIDTH,
 } from "../constants";
 import {
   PointNotOnTheEdgeError,
@@ -701,8 +702,8 @@ export const dataConverter = (
     filtered,
     filtered.findIndex((p) => p.x === startPoint.x && p.y === startPoint.y),
     filtered.findIndex((p) => p.x === endPoint.x && p.y === endPoint.y),
-    changeRectangleSize(firstRectangleWithPaddings, -1),
-    changeRectangleSize(secondRectangleWithPaddings, -1)
+    changeRectangleSize(firstRectangleWithPaddings, -CONNECTION_LINE_WIDTH / 2),
+    changeRectangleSize(secondRectangleWithPaddings, -CONNECTION_LINE_WIDTH / 2)
   ).path;
 
   return [cPoint1.point, ...path, cPoint2.point];
