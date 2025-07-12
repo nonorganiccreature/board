@@ -4,7 +4,7 @@ import type { ConnectionPoint, Point, Size } from "../types";
 import { BORDER_WIDTH } from "../constants";
 import { Rectangle } from "../models";
 import { DrawableShape } from "./";
-import { addPoints, zeroPoint, mapToCanvasCoordinates } from "../utils";
+import { addPoints, zeroPoint, mapCanvasToLeftBottomZeroCoordinates } from "../utils";
 import { CONNECTION_POINT_SIZE } from "../constants";
 
 export class DrawableRectangle extends DrawableShape implements Drawable {
@@ -39,7 +39,7 @@ export class DrawableRectangle extends DrawableShape implements Drawable {
       height: this.model.rect.size.height + BORDER_WIDTH,
     };
 
-    const reactangleCenter = mapToCanvasCoordinates(
+    const reactangleCenter = mapCanvasToLeftBottomZeroCoordinates(
       addPoints(this.model.rect.position, this.translation)
     );
 
@@ -53,7 +53,7 @@ export class DrawableRectangle extends DrawableShape implements Drawable {
 
     super.draw(drawer);
 
-    const connectionPointCenter = mapToCanvasCoordinates(
+    const connectionPointCenter = mapCanvasToLeftBottomZeroCoordinates(
       addPoints(this.connectionPoint.point, this.translation)
     );
 

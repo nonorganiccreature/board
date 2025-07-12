@@ -1,25 +1,25 @@
-import type { Callback } from "../types";
+import type { InputEventCallback } from "../types";
 
 export class InputService {
-  mouseDownCallbacks: Callback[] = [];
-  mouseUpCallbacks: Callback[] = [];
-  mouseMoveCallbacks: Callback[] = [];
+  mouseDownCallbacks: InputEventCallback[] = [];
+  mouseUpCallbacks: InputEventCallback[] = [];
+  mouseMoveCallbacks: InputEventCallback[] = [];
 
   constructor() {}
 
   initialize() {}
 
-  addMouseDownCallback(cb: Callback) {
+  addMouseDownCallback(cb: InputEventCallback) {
     this.mouseDownCallbacks.push(cb);
     document.addEventListener('mousedown', cb)
   }
 
-  addMouseMoveCallback(cb: Callback) {
+  addMouseMoveCallback(cb: InputEventCallback) {
     this.mouseDownCallbacks.push(cb);
     document.addEventListener('mousemove', cb)
   }
 
-  addMouseUpCallback(cb: Callback) {
+  addMouseUpCallback(cb: InputEventCallback) {
     this.mouseDownCallbacks.push(cb);
     document.addEventListener('mouseup', cb)
   }

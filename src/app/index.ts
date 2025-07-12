@@ -1,6 +1,6 @@
 import { DrawableRectangle } from "../drawables";
 import { Rectangle } from "../models";
-import { zeroPoint, mapToCanvasCoordinates, subtractPoints } from "../utils";
+import { zeroPoint, mapCanvasToLeftBottomZeroCoordinates, subtractPoints } from "../utils";
 import { Node } from "../models";
 import { InputService } from "../services";
 import { pointInReactangle } from "../utils";
@@ -104,7 +104,7 @@ export class Application {
   }
 
   onMouseDownAreaNodeSelect(e: MouseEvent) {
-    const coords = mapToCanvasCoordinates({ x: e.clientX, y: e.clientY });
+    const coords = mapCanvasToLeftBottomZeroCoordinates({ x: e.clientX, y: e.clientY });
 
     for (const node of this.areaNodes) {
       if (node.shape instanceof DrawableRectangle) {
@@ -130,7 +130,7 @@ export class Application {
   onMouseMoveSelectedAreaNode(e: MouseEvent) {
     if (this.mouseDownCoordinates) {
       if (this.selectedNode) {
-        const currentMouseCoordinates: Point = mapToCanvasCoordinates({
+        const currentMouseCoordinates: Point = mapCanvasToLeftBottomZeroCoordinates({
           x: e.clientX,
           y: e.clientY,
         });
@@ -154,7 +154,7 @@ export class Application {
         this.selectedConnectionPointNode &&
         this.selectedConnectionPointNode.shape instanceof DrawableRectangle
       ) {
-        const currentMouseCoordinates: Point = mapToCanvasCoordinates({
+        const currentMouseCoordinates: Point = mapCanvasToLeftBottomZeroCoordinates({
           x: e.clientX,
           y: e.clientY,
         });

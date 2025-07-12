@@ -9,7 +9,7 @@ export {
   dotProduct,
   distance,
   multiplyPointScalar,
-  mapCanvasToLeftBottomZeroCoordinates as mapToCanvasCoordinates,
+  mapCanvasToLeftBottomZeroCoordinates,
   pointLength
 } from "./math";
 
