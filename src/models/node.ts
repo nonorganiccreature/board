@@ -10,12 +10,9 @@ import {
   findFirstIntersection,
   isEmptyPoint,
   subtractPoints,
+  mapCanvasToLeftBottomZeroCoordinates,
 } from "../utils";
-import {
-  angleBetween,
-  normalize,
-  rotatePoint,
-} from "../utils";
+import { angleBetween, normalize, rotatePoint } from "../utils";
 
 export class Node {
   shape: Drawable;
@@ -90,48 +87,7 @@ export class Node {
       // }
 
       if (!isEmptyPoint(this.shape.connectionPointTranslation)) {
-        const connectionPointIntersection = findFirstIntersection(
-          addPoints(
-            this.shape.model.rect.position,
-            this.shape.connectionPointTranslation
-          ),
-          this.shape.model.rect.position,
-          extractRectangleEdges(this.shape.model.rect)
-        );
-
-        let angle = this.shape.connectionPoint.angle;
-        if (connectionPointIntersection) {
-          const intersectionVector = normalize(
-            rotatePoint(
-              normalize(
-                subtractPoints(
-                  connectionPointIntersection.segment[1],
-                  connectionPointIntersection.segment[0]
-                )
-              ),
-              90,
-              false,
-              true
-            )
-          );
-
-          angle = angleBetween({ x: 1, y: 0 }, intersectionVector, true);
-
-          connectionPointWithAppliedTranslation = {
-            point: connectionPointIntersection.point,
-            angle: angle,
-          };
-
-          connectionPointWithAppliedTranslation.point.x = Math.round(
-            connectionPointWithAppliedTranslation.point.x
-          );
-
-          connectionPointWithAppliedTranslation.point.y = Math.round(
-            connectionPointWithAppliedTranslation.point.y
-          );
-
-          this.shape.connectionPoint = connectionPointWithAppliedTranslation;
-        }
+        this.calculateMouseFromCenterEdgeIntersection();
       }
 
       const path = new DrawablePath(
@@ -149,6 +105,57 @@ export class Node {
 
       this.pathToAdjacentNode = path;
       this.adjacentNode.pathToAdjacentNode = path;
+    }
+  }
+
+  calculateMouseFromCenterEdgeIntersection() {
+    if (
+      this.adjacentNode &&
+      this.shape instanceof DrawableRectangle &&
+      this.adjacentNode.shape instanceof DrawableRectangle
+    ) {
+      const connectionPointIntersection = findFirstIntersection(
+        addPoints(
+          this.shape.model.rect.position,
+          this.shape.connectionPointTranslation
+        ),
+        this.shape.model.rect.position,
+        extractRectangleEdges(this.shape.model.rect)
+      );
+
+      let angle = this.shape.connectionPoint.angle;
+      if (connectionPointIntersection) {
+        const intersectionVector = normalize(
+          rotatePoint(
+            normalize(
+              subtractPoints(
+                connectionPointIntersection.segment[1],
+                connectionPointIntersection.segment[0]
+              )
+            ),
+            90,
+            false,
+            true
+          )
+        );
+
+        angle = angleBetween({ x: 1, y: 0 }, intersectionVector, true);
+
+        const connectionPointWithAppliedTranslation: ConnectionPoint = {
+          point: connectionPointIntersection.point,
+          angle: angle,
+        };
+
+        connectionPointWithAppliedTranslation.point.x = Math.round(
+          connectionPointWithAppliedTranslation.point.x
+        );
+
+        connectionPointWithAppliedTranslation.point.y = Math.round(
+          connectionPointWithAppliedTranslation.point.y
+        );
+
+        this.shape.connectionPoint = connectionPointWithAppliedTranslation;
+      }
     }
   }
 
@@ -175,48 +182,7 @@ export class Node {
       }
 
       if (!isEmptyPoint(this.shape.connectionPointTranslation)) {
-        const connectionPointIntersection = findFirstIntersection(
-          addPoints(
-            this.shape.model.rect.position,
-            this.shape.connectionPointTranslation
-          ),
-          this.shape.model.rect.position,
-          extractRectangleEdges(this.shape.model.rect)
-        );
-
-        let angle = this.shape.connectionPoint.angle;
-        if (connectionPointIntersection) {
-          const intersectionVector = normalize(
-            rotatePoint(
-              normalize(
-                subtractPoints(
-                  connectionPointIntersection.segment[1],
-                  connectionPointIntersection.segment[0]
-                )
-              ),
-              90,
-              false,
-              true
-            )
-          );
-
-          angle = angleBetween({ x: 1, y: 0 }, intersectionVector, true);
-
-          connectionPointWithAppliedTranslation = {
-            point: connectionPointIntersection.point,
-            angle: angle,
-          };
-
-          connectionPointWithAppliedTranslation.point.x = Math.round(
-            connectionPointWithAppliedTranslation.point.x
-          );
-
-          connectionPointWithAppliedTranslation.point.y = Math.round(
-            connectionPointWithAppliedTranslation.point.y
-          );
-
-          this.shape.connectionPoint = connectionPointWithAppliedTranslation;
-        }
+        this.calculateMouseFromCenterEdgeIntersection();
       }
 
       this.shape.translation = zeroPoint();

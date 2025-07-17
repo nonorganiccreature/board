@@ -32,6 +32,8 @@ export class Application {
       throw new Error("Canvas элемент не инициализирован");
     }
 
+    window.DEBUG_DRAW = this.canvas.getContext("2d")
+
     const firstRectangle = new DrawableRectangle(
       new Rectangle({
         position: { x: 1050, y: 650 },
@@ -161,7 +163,7 @@ export class Application {
 
         const mouseMoveDiffFromMouseDownOrigin = subtractPoints(
           currentMouseCoordinates,
-          this.mouseDownCoordinates
+          this.selectedConnectionPointNode.shape.model.rect.position
         );
 
         this.selectedConnectionPointNode.assignTranslation(
