@@ -10,7 +10,6 @@ import {
   findFirstIntersection,
   isEmptyPoint,
   subtractPoints,
-  mapCanvasToLeftBottomZeroCoordinates,
 } from "../utils";
 import { angleBetween, normalize, rotatePoint } from "../utils";
 
@@ -70,8 +69,7 @@ export class Node {
       this.shape instanceof DrawableRectangle &&
       this.adjacentNode.shape instanceof DrawableRectangle
     ) {
-      // debugger;
-      let connectionPointWithAppliedTranslation: ConnectionPoint = {
+      const connectionPointWithAppliedTranslation: ConnectionPoint = {
         point: addPoints(
           this.shape.connectionPoint.point,
           this.shape.translation
@@ -82,9 +80,6 @@ export class Node {
       const rectanglePositionAppliedTranslation = {
         ...addPoints(this.shape.model.rect.position, this.shape.translation),
       };
-
-      // if (!isEmptyPoint(this.shape.translation)) {
-      // }
 
       if (!isEmptyPoint(this.shape.connectionPointTranslation)) {
         this.calculateMouseFromCenterEdgeIntersection();
@@ -161,7 +156,7 @@ export class Node {
 
   commitTranslation() {
     if (this.shape instanceof DrawableRectangle) {
-      let connectionPointWithAppliedTranslation: ConnectionPoint = {
+      const connectionPointWithAppliedTranslation: ConnectionPoint = {
         point: addPoints(
           this.shape.connectionPoint.point,
           this.shape.translation

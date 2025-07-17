@@ -694,8 +694,10 @@ export const dataConverter = (
     ).values(),
   ].filter(
     (p) =>
-      !pointInReactangle(firstRectangleWithPaddings, p, true) &&
-      !pointInReactangle(secondRectangleWithPaddings, p, true)
+      pointsEquals(startPoint, p) ||
+      pointsEquals(endPoint, p) ||
+      (!pointInReactangle(firstRectangleWithPaddings, p, true) &&
+        !pointInReactangle(secondRectangleWithPaddings, p, true))
   );
 
   const path = dijkstra(
