@@ -1,6 +1,10 @@
 import { DrawableRectangle } from "../drawables";
 import { Rectangle } from "../models";
-import { zeroPoint, mapCanvasToLeftBottomZeroCoordinates, subtractPoints } from "../utils";
+import {
+  zeroPoint,
+  mapCanvasToLeftBottomZeroCoordinates,
+  subtractPoints,
+} from "../utils";
 import { Node } from "../models";
 import { InputService } from "../services";
 import { pointInReactangle } from "../utils";
@@ -24,20 +28,36 @@ export class Application {
 
   init() {
     const c = document.querySelector("#canvas");
+
+    const viewportWidth = document.documentElement.offsetWidth;
+    const viewportHeight = document.documentElement.offsetHeight;
+
     if (c) {
       this.canvas = document.querySelector("#canvas") as HTMLCanvasElement;
-      this.canvas.width = document.documentElement.offsetWidth;
-      this.canvas.height = document.documentElement.offsetHeight;
+      this.canvas.width = viewportWidth;
+      this.canvas.height = viewportHeight;
     } else {
       throw new Error("Canvas элемент не инициализирован");
     }
 
+    const firstRectangleWidth = 50;
+    const firstRectangleHeight = 50;
+
+    const secondRectangleWidth = 50;
+    const secondRectangleHeight = 50;
+
     const firstRectangle = new DrawableRectangle(
       new Rectangle({
-        position: { x: 1050, y: 650 },
-        size: { width: 50, height: 50 },
+        position: { x: viewportWidth / 2, y: viewportHeight / 2 + 150 },
+        size: { width: firstRectangleWidth, height: firstRectangleHeight },
       }),
-      { point: { x: 1075, y: 650 }, angle: 0 },
+      {
+        point: {
+          x: viewportWidth / 2 + firstRectangleWidth / 2,
+          y: viewportHeight / 2 + 150,
+        },
+        angle: 0,
+      },
       "#afa",
       "#33f",
       "#000"
@@ -45,10 +65,16 @@ export class Application {
 
     const secondRectangle = new DrawableRectangle(
       new Rectangle({
-        position: { x: 1000, y: 400 },
-        size: { width: 50, height: 50 },
+        position: { x: viewportWidth / 2, y: viewportHeight / 2 - 100 },
+        size: { width: secondRectangleWidth, height: secondRectangleHeight },
       }),
-      { point: { x: 1000, y: 375 }, angle: 270 },
+      {
+        point: {
+          x: viewportWidth / 2,
+          y: viewportHeight / 2 - 100 - secondRectangleHeight / 2,
+        },
+        angle: 270,
+      },
       "#afa",
       "#33f",
       "#000"
@@ -104,7 +130,10 @@ export class Application {
   }
 
   onMouseDownAreaNodeSelect(e: MouseEvent) {
-    const coords = mapCanvasToLeftBottomZeroCoordinates({ x: e.clientX, y: e.clientY });
+    const coords = mapCanvasToLeftBottomZeroCoordinates({
+      x: e.clientX,
+      y: e.clientY,
+    });
 
     for (const node of this.areaNodes) {
       if (node.shape instanceof DrawableRectangle) {
@@ -130,10 +159,11 @@ export class Application {
   onMouseMoveSelectedAreaNode(e: MouseEvent) {
     if (this.mouseDownCoordinates) {
       if (this.selectedNode) {
-        const currentMouseCoordinates: Point = mapCanvasToLeftBottomZeroCoordinates({
-          x: e.clientX,
-          y: e.clientY,
-        });
+        const currentMouseCoordinates: Point =
+          mapCanvasToLeftBottomZeroCoordinates({
+            x: e.clientX,
+            y: e.clientY,
+          });
 
         const mouseMoveDiffFromMouseDownOrigin = subtractPoints(
           currentMouseCoordinates,
@@ -154,10 +184,11 @@ export class Application {
         this.selectedConnectionPointNode &&
         this.selectedConnectionPointNode.shape instanceof DrawableRectangle
       ) {
-        const currentMouseCoordinates: Point = mapCanvasToLeftBottomZeroCoordinates({
-          x: e.clientX,
-          y: e.clientY,
-        });
+        const currentMouseCoordinates: Point =
+          mapCanvasToLeftBottomZeroCoordinates({
+            x: e.clientX,
+            y: e.clientY,
+          });
 
         const mouseMoveDiffFromMouseDownOrigin = subtractPoints(
           currentMouseCoordinates,
