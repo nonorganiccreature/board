@@ -664,7 +664,7 @@ export const dataConverter = (
     ...nodesAreaRectangleEdges,
     ...minConnectionPointMaxAreaRectangleEdges,
     ...maxConnectionPointMaxAreaRectangleEdges,
-  ];
+  ];  
 
   const pointsAndSegmentsOverlaps = [];
   for (let i = 0; i < allEdges.length; i++) {
@@ -700,13 +700,13 @@ export const dataConverter = (
         !pointInReactangle(secondRectangleWithPaddings, p, true))
   );
 
-  const path = dijkstra(
+  const { path } = dijkstra(
     filtered,
     filtered.findIndex((p) => p.x === startPoint.x && p.y === startPoint.y),
     filtered.findIndex((p) => p.x === endPoint.x && p.y === endPoint.y),
     changeRectangleSize(firstRectangleWithPaddings, -CONNECTION_LINE_WIDTH / 2),
     changeRectangleSize(secondRectangleWithPaddings, -CONNECTION_LINE_WIDTH / 2)
-  ).path;
+  );
 
   return [cPoint1.point, ...path, cPoint2.point];
 };

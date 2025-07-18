@@ -147,7 +147,7 @@ export class Application {
 
         this.selectedNode.createAdjacentNodePathWithTranslations();
 
-        this.render();
+        this.rafID = requestAnimationFrame(this.render.bind(this));
       }
 
       if (
@@ -170,7 +170,7 @@ export class Application {
         );
 
         this.selectedConnectionPointNode.createAdjacentNodePathWithTranslations();
-        this.render();
+        this.rafID = requestAnimationFrame(this.render.bind(this));
       }
     }
   }
