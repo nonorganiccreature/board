@@ -46,15 +46,25 @@ export class Application {
     const secondRectangleWidth = 50;
     const secondRectangleHeight = 50;
 
+    const firstRectangleCenter: Point = {
+      x: Math.round(viewportWidth / 2),
+      y: Math.round(viewportHeight / 2) + 150,
+    };
+
+    const secondRectangleCenter: Point = {
+      x: Math.round(viewportWidth / 2),
+      y: Math.round(viewportHeight / 2) - 100,
+    };
+
     const firstRectangle = new DrawableRectangle(
       new Rectangle({
-        position: { x: viewportWidth / 2, y: viewportHeight / 2 + 150 },
+        position: { ...firstRectangleCenter },
         size: { width: firstRectangleWidth, height: firstRectangleHeight },
       }),
       {
         point: {
-          x: viewportWidth / 2 + firstRectangleWidth / 2,
-          y: viewportHeight / 2 + 150,
+          x: firstRectangleCenter.x + firstRectangleWidth / 2,
+          y: firstRectangleCenter.y,
         },
         angle: 0,
       },
@@ -65,13 +75,13 @@ export class Application {
 
     const secondRectangle = new DrawableRectangle(
       new Rectangle({
-        position: { x: viewportWidth / 2, y: viewportHeight / 2 - 100 },
+        position: { ...secondRectangleCenter },
         size: { width: secondRectangleWidth, height: secondRectangleHeight },
       }),
       {
         point: {
-          x: viewportWidth / 2,
-          y: viewportHeight / 2 - 100 - secondRectangleHeight / 2,
+          x: secondRectangleCenter.x,
+          y: secondRectangleCenter.y - secondRectangleHeight / 2,
         },
         angle: 270,
       },
