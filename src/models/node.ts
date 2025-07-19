@@ -232,7 +232,7 @@ export class Node {
 
   changeConnectionPointPosition(intersectedPaddedEdges: Segment[]) {
     if (this.shape instanceof DrawableRectangle) {
-      // debugger;
+      
       const thisRectangleEdges = extractRectangleEdges(this.shape.model.rect);
 
       let freeEdge: Segment | null = null;

@@ -228,9 +228,6 @@ export class Application {
   onMouseUpAreaNodeSelect() {
     if (this.selectedNode) {
       this.selectedNode.commitTranslation();
-      console.log(
-        this.selectedNode.intersectsWithNode(this.selectedNode.adjacentNode!)
-      );
     }
 
     if (this.selectedConnectionPointNode) {
