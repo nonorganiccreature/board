@@ -1,6 +1,7 @@
+import { CONNECTION_LINE_PADDING } from "../constants";
 import { DrawablePath, DrawableRectangle } from "../drawables";
 import type { Drawable } from "../interfaces";
-import type { ConnectionPoint, Point } from "../types";
+import type { ConnectionPoint, Point, Rect, Segment } from "../types";
 import {
   addPoints,
   dataConverter,
@@ -150,6 +151,141 @@ export class Node {
         );
 
         this.shape.connectionPoint = connectionPointWithAppliedTranslation;
+      }
+    }
+  }
+
+  intersectsWithNode(otherNode: Node): Array<Segment[]> | null {
+    if (
+      this.shape instanceof DrawableRectangle &&
+      otherNode.shape instanceof DrawableRectangle
+    ) {
+      const thisRectanglePositionAppliedTranslation = {
+        ...addPoints(this.shape.model.rect.position, this.shape.translation),
+      };
+
+      const thisRectangleWithPaddings: Rect = {
+        size: {
+          width: this.shape.model.rect.size.width + 2 * CONNECTION_LINE_PADDING,
+          height:
+            this.shape.model.rect.size.height + 2 * CONNECTION_LINE_PADDING,
+        },
+        position: thisRectanglePositionAppliedTranslation,
+      };
+
+      const otherNodeRectangleWithPaddings: Rect = {
+        size: {
+          width:
+            otherNode.shape.model.rect.size.width + 2 * CONNECTION_LINE_PADDING,
+          height:
+            otherNode.shape.model.rect.size.height +
+            2 * CONNECTION_LINE_PADDING,
+        },
+        position: otherNode.shape.model.rect.position,
+      };
+
+      const thisRectangleEdges = extractRectangleEdges(
+        thisRectangleWithPaddings
+      );
+
+      const otherNodeRectangleEdges = extractRectangleEdges(
+        otherNodeRectangleWithPaddings
+      );
+
+      const thisEdgesIntersectsOtherRectangle = [];
+
+      for (const thisEdge of thisRectangleEdges) {
+        if (
+          findFirstIntersection(
+            thisEdge[0],
+            thisEdge[1],
+            otherNodeRectangleEdges
+          )
+        ) {
+          thisEdgesIntersectsOtherRectangle.push(thisEdge);
+        }
+      }
+
+      const otherEdgeIntersectsThisRectangle = [];
+
+      for (const otherEdge of otherNodeRectangleEdges) {
+        if (
+          findFirstIntersection(otherEdge[0], otherEdge[1], thisRectangleEdges)
+        ) {
+          otherEdgeIntersectsThisRectangle.push(otherEdge);
+        }
+      }
+
+      if (
+        thisEdgesIntersectsOtherRectangle.length > 0 &&
+        otherEdgeIntersectsThisRectangle.length > 0
+      ) {
+        return [
+          thisEdgesIntersectsOtherRectangle,
+          otherEdgeIntersectsThisRectangle,
+        ];
+      }
+    }
+
+    return null;
+  }
+
+  changeConnectionPointPosition(intersectedPaddedEdges: Segment[]) {
+    if (this.shape instanceof DrawableRectangle) {
+      // debugger;
+      const thisRectangleEdges = extractRectangleEdges(this.shape.model.rect);
+
+      let freeEdge: Segment | null = null;
+      for (const thisEdge of thisRectangleEdges) {
+        freeEdge = thisEdge;
+
+        const normalizedThisEdge = normalize(
+          subtractPoints(thisEdge[1], thisEdge[0])
+        );
+
+        for (const intersectedEdge of intersectedPaddedEdges) {
+          const normalizedIntersectedEdge = normalize(
+            subtractPoints(intersectedEdge[1], intersectedEdge[0])
+          );
+
+          const angle = angleBetween(
+            normalizedIntersectedEdge,
+            normalizedThisEdge,
+            true
+          );
+
+          if (angle === 0) {
+            freeEdge = null;
+            break;
+          }
+        }
+
+        // Ребро прямоугольника не параллельно и не сонаправленно ни с одной граней буферного квадрата пересекающаяся с другим буферным квадратом
+
+        if (freeEdge) {
+          break;
+        }
+      }
+
+      if (freeEdge) {
+        const newAngle =
+          angleBetween(
+            { x: 1, y: 0 },
+            rotatePoint(
+              normalize(subtractPoints(freeEdge[1], freeEdge[0])),
+              90,
+              false,
+              true
+            ),
+            true
+          ) % 360;
+
+        const newPosition: Point = {
+          x: Math.round(freeEdge[0].x + freeEdge[1].x) / 2,
+          y: Math.round(freeEdge[0].y + freeEdge[1].y) / 2,
+        };
+
+        this.shape.connectionPoint = { angle: newAngle, point: newPosition };
       }
     }
   }

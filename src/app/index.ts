@@ -185,6 +185,15 @@ export class Application {
           zeroPoint()
         );
 
+        if (this.selectedNode.adjacentNode) {
+          const intersections = this.selectedNode.intersectsWithNode(this.selectedNode.adjacentNode)
+  
+          if (intersections) {
+            this.selectedNode.changeConnectionPointPosition(intersections[0])
+            this.selectedNode.adjacentNode.changeConnectionPointPosition(intersections[1])
+          }
+        }
+
         this.selectedNode.createAdjacentNodePathWithTranslations();
 
         this.rafID = requestAnimationFrame(this.render.bind(this));
@@ -219,6 +228,9 @@ export class Application {
   onMouseUpAreaNodeSelect() {
     if (this.selectedNode) {
       this.selectedNode.commitTranslation();
+      console.log(
+        this.selectedNode.intersectsWithNode(this.selectedNode.adjacentNode!)
+      );
     }
 
     if (this.selectedConnectionPointNode) {
