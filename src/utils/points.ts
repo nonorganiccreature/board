@@ -3,6 +3,7 @@ import {
   angleBetween,
   crossProduct,
   distance,
+  mapCanvasToLeftBottomZeroCoordinates,
   multiplyPoints,
   normalize,
   rotatePoint,
@@ -585,7 +586,7 @@ export const dataConverter = (
   );
 
   const distanceZeroToStart = distance(startPoint, zeroPoint());
-  const distanceZeroToEnd = distance(startPoint, zeroPoint());
+  const distanceZeroToEnd = distance(endPoint, zeroPoint());
 
   const minPointStartEnd =
     distanceZeroToStart < distanceZeroToEnd ? startPoint : endPoint;
@@ -628,6 +629,52 @@ export const dataConverter = (
     { x: xMax, y: yMax }
   );
 
+  const paddedRectanglesDiagonal: Segment = [
+    {
+      x: firstRectangleWithPaddings.position.x,
+      y: firstRectangleWithPaddings.position.y,
+    },
+    {
+      x: secondRectangleWithPaddings.position.x,
+      y: secondRectangleWithPaddings.position.y,
+    },
+  ];
+
+  [paddedRectanglesDiagonal[0], paddedRectanglesDiagonal[1]] =
+    distanceZeroToStart < distanceZeroToEnd
+      ? [paddedRectanglesDiagonal[0], paddedRectanglesDiagonal[1]]
+      : [paddedRectanglesDiagonal[1], paddedRectanglesDiagonal[0]];
+
+  const paddedRectanglesDiff = subtractPoints(
+    paddedRectanglesDiagonal[1],
+    paddedRectanglesDiagonal[0]
+  );
+
+  const paddedRectanglesCenter = {
+    x: paddedRectanglesDiagonal[0].x + (paddedRectanglesDiff.x / 2),
+    y: paddedRectanglesDiagonal[0].y + (paddedRectanglesDiff.y / 2),
+  };
+
+  const paddedRectanglesAreaRectangle: Rect = {
+    position: paddedRectanglesCenter,
+    size: { width: paddedRectanglesDiff.x, height: paddedRectanglesDiff.y },
+  };
+
+  const paddedRectanglesEdges: Segment[] = [];
+
+  const paddedRectanglesAreaRectanglePoints = extractRectanglePoints(
+    paddedRectanglesAreaRectangle
+  );
+
+  for (const paddedRectanglePoint of paddedRectanglesAreaRectanglePoints) {
+    paddedRectanglesEdges.push(
+      ...extractRectangleEdges({
+        position: paddedRectanglePoint,
+        size: firstRectangleWithPaddings.size,
+      })
+    );
+  }
+
   const nodesAreaCenter = {
     x: xMin + Math.abs(nodesAreaDiagonal.x / 2),
     y: yMin + Math.abs(nodesAreaDiagonal.y / 2),
@@ -660,37 +707,18 @@ export const dataConverter = (
   const allEdges = [
     ...firstRectangleWithPaddingsEdges,
     ...secondRectangleWithPaddingsEdges,
-    ...startEndPointsRectangleEdges,
     ...nodesAreaRectangleEdges,
+    ...startEndPointsRectangleEdges,
     ...minConnectionPointMaxAreaRectangleEdges,
     ...maxConnectionPointMaxAreaRectangleEdges,
-  ];  
+    ...paddedRectanglesEdges,
+  ];
 
-  const pointsAndSegmentsOverlaps = [];
-  for (let i = 0; i < allEdges.length; i++) {
-    const currentEdge = allEdges[i];
-
-    for (let j = 0; j < allEdges.length; j++) {
-      if (currentEdge === allEdges[j]) {
-        continue;
-      }
-
-      const result = segmentsOverlap(currentEdge, allEdges[j]);
-
-      if (Array.isArray(result)) {
-        pointsAndSegmentsOverlaps.push(...result);
-        continue;
-      }
-
-      if (result) {
-        pointsAndSegmentsOverlaps.push(result);
-      }
-    }
-  }
+  const allPoints = allEdges.flat();
 
   const filtered = [
     ...new Map(
-      pointsAndSegmentsOverlaps.map((item) => [`${item.x},${item.y}`, item])
+      allPoints.map((item) => [`${item.x},${item.y}`, item])
     ).values(),
   ].filter(
     (p) =>
@@ -704,8 +732,8 @@ export const dataConverter = (
     filtered,
     filtered.findIndex((p) => p.x === startPoint.x && p.y === startPoint.y),
     filtered.findIndex((p) => p.x === endPoint.x && p.y === endPoint.y),
-    changeRectangleSize(firstRectangleWithPaddings, -CONNECTION_LINE_WIDTH / 2),
-    changeRectangleSize(secondRectangleWithPaddings, -CONNECTION_LINE_WIDTH / 2)
+    changeRectangleSize(firstRectangleWithPaddings, -Math.round(CONNECTION_LINE_WIDTH / 2)),
+    changeRectangleSize(secondRectangleWithPaddings, -Math.round(CONNECTION_LINE_WIDTH / 2))
   );
 
   return [cPoint1.point, ...path, cPoint2.point];
