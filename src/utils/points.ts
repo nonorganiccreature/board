@@ -3,7 +3,6 @@ import {
   angleBetween,
   crossProduct,
   distance,
-  mapCanvasToLeftBottomZeroCoordinates,
   multiplyPoints,
   normalize,
   rotatePoint,
