@@ -147,23 +147,18 @@ function dijkstra(
   const start = points[startIndex];
   const end = points[endIndex];
 
-  // Создаём граф (список смежности)
   const graph = buildGraph(points, r1, r2);
 
-  // Инициализация расстояний
   const distances = new Map();
   const previous = new Map();
   const visited = new Set();
 
-  // Начальная точка
   distances.set(`${start.x},${start.y}`, 0);
   previous.set(`${start.x},${start.y}`, null);
 
-  // Приоритетная очередь (можно использовать массив, но лучше бинарную кучу)
   const queue = [{ ...start, dist: 0 }];
 
   while (queue.length > 0) {
-    // Находим точку с минимальным расстоянием (упрощённо, без оптимизированной очереди)
     queue.sort((a, b) => a.dist - b.dist);
     const current = queue.shift()!;
     const currentKey = `${current.x},${current.y}`;
@@ -554,15 +549,7 @@ export const dataConverter = (
     firstRectangleWithPaddings
   );
 
-  const firstRectangleWithPaddingsEdges = extractRectangleEdges(
-    firstRectangleWithPaddings
-  );
-
   const secondRectangleWithPaddingsPoints = extractRectanglePoints(
-    secondRectangleWithPaddings
-  );
-
-  const secondRectangleWithPaddingsEdges = extractRectangleEdges(
     secondRectangleWithPaddings
   );
 
@@ -586,42 +573,6 @@ export const dataConverter = (
 
   const distanceZeroToStart = distance(startPoint, zeroPoint());
   const distanceZeroToEnd = distance(endPoint, zeroPoint());
-
-  const minPointStartEnd =
-    distanceZeroToStart < distanceZeroToEnd ? startPoint : endPoint;
-
-  const maxPointStartEnd =
-    distanceZeroToStart < distanceZeroToEnd ? endPoint : startPoint;
-
-  const minConnectionPointMaxAreaRectangle: Rect = {
-    position: {
-      x: (minPointStartEnd.x + xMax) / 2,
-      y: (minPointStartEnd.y + yMax) / 2,
-    },
-    size: {
-      width: Math.abs(minPointStartEnd.x - xMax),
-      height: Math.abs(minPointStartEnd.y - yMax),
-    },
-  };
-
-  const maxConnectionPointMaxAreaRectangle: Rect = {
-    position: {
-      x: (maxPointStartEnd.x + xMin) / 2,
-      y: (maxPointStartEnd.y + yMin) / 2,
-    },
-    size: {
-      width: Math.abs(maxPointStartEnd.x - xMin),
-      height: Math.abs(maxPointStartEnd.y - yMin),
-    },
-  };
-
-  const minConnectionPointMaxAreaRectangleEdges = extractRectangleEdges(
-    minConnectionPointMaxAreaRectangle
-  );
-
-  const maxConnectionPointMaxAreaRectangleEdges = extractRectangleEdges(
-    maxConnectionPointMaxAreaRectangle
-  );
 
   const nodesAreaDiagonal = subtractPoints(
     { x: xMin, y: yMin },
@@ -650,8 +601,8 @@ export const dataConverter = (
   );
 
   const paddedRectanglesCenter = {
-    x: paddedRectanglesDiagonal[0].x + (paddedRectanglesDiff.x / 2),
-    y: paddedRectanglesDiagonal[0].y + (paddedRectanglesDiff.y / 2),
+    x: paddedRectanglesDiagonal[0].x + paddedRectanglesDiff.x / 2,
+    y: paddedRectanglesDiagonal[0].y + paddedRectanglesDiff.y / 2,
   };
 
   const paddedRectanglesAreaRectangle: Rect = {
@@ -679,13 +630,6 @@ export const dataConverter = (
     y: yMin + Math.abs(nodesAreaDiagonal.y / 2),
   };
 
-  const nodesAreaRectangle: Rect = {
-    position: nodesAreaCenter,
-    size: { width: xMax - xMin, height: yMax - yMin },
-  };
-
-  const nodesAreaRectangleEdges = extractRectangleEdges(nodesAreaRectangle);
-
   const startEndPointsRectangle: Rect = {
     position: {
       x:
@@ -699,26 +643,71 @@ export const dataConverter = (
     },
   };
 
-  const startEndPointsRectangleEdges = extractRectangleEdges(
-    startEndPointsRectangle
+  const yCenterMiddleLine = nodesAreaCenter.y;
+  const x1HorizontalMiddleLine = xMin;
+  const x2HorizontalMiddleLine = xMax;
+
+  const xCenterMiddleLine = nodesAreaCenter.x;
+  const y1VerticalMiddleLine = yMin;
+  const y2VerticalMiddleLine = yMax;
+
+  const halfWidthRectangles = firstRectangleWithPaddings.size.width / 2;
+  const halfHeightRectangles = firstRectangleWithPaddings.size.height / 2;
+
+  const middleLinePoints: Point[] = [];
+
+  let currentX = x1HorizontalMiddleLine;
+  let currentEndX = x2HorizontalMiddleLine;
+
+  while (
+    currentX - xCenterMiddleLine <= 0 &&
+    xCenterMiddleLine - currentEndX <= 0
+  ) {
+    middleLinePoints.push({ x: currentX, y: yCenterMiddleLine });
+    middleLinePoints.push({ x: currentEndX, y: yCenterMiddleLine });
+
+    currentX += halfWidthRectangles;
+    currentEndX -= halfWidthRectangles;
+  }
+
+  let currentY = y1VerticalMiddleLine;
+  let currentEndY = y2VerticalMiddleLine;
+
+  while (
+    currentY - yCenterMiddleLine <= 0 &&
+    yCenterMiddleLine - currentEndY <= 0
+  ) {
+    middleLinePoints.push({ x: xCenterMiddleLine, y: currentY });
+    middleLinePoints.push({ x: xCenterMiddleLine, y: currentEndY });
+
+    currentY += halfHeightRectangles;
+    currentEndY -= halfHeightRectangles;
+  }
+
+  const paddedRectanglesPoints: Point[] = [];
+
+  for (const edge of paddedRectanglesEdges) {
+    const middlePoint: Point = {
+      x: (edge[0].x + edge[1].x) / 2,
+      y: (edge[0].y + edge[1].y) / 2,
+    };
+
+    paddedRectanglesPoints.push(edge[0], edge[1], middlePoint);
+  }
+
+  const allPoints = [];
+
+  allPoints.push(
+    startPoint,
+    endPoint,
+    ...middleLinePoints,
+    ...paddedRectanglesPoints,
+    ...extractRectanglePoints(startEndPointsRectangle),
+    nodesAreaCenter
   );
 
-  const allEdges = [
-    ...firstRectangleWithPaddingsEdges,
-    ...secondRectangleWithPaddingsEdges,
-    ...nodesAreaRectangleEdges,
-    ...startEndPointsRectangleEdges,
-    ...minConnectionPointMaxAreaRectangleEdges,
-    ...maxConnectionPointMaxAreaRectangleEdges,
-    ...paddedRectanglesEdges,
-  ];
-
-  const allPoints = allEdges.flat();
-
   const filtered = [
-    ...new Map(
-      allPoints.map((item) => [`${item.x},${item.y}`, item])
-    ).values(),
+    ...new Map(allPoints.map((item) => [`${item.x},${item.y}`, item])).values(),
   ].filter(
     (p) =>
       pointsEquals(startPoint, p) ||
@@ -731,11 +720,71 @@ export const dataConverter = (
     filtered,
     filtered.findIndex((p) => p.x === startPoint.x && p.y === startPoint.y),
     filtered.findIndex((p) => p.x === endPoint.x && p.y === endPoint.y),
-    changeRectangleSize(firstRectangleWithPaddings, -Math.round(CONNECTION_LINE_WIDTH / 2)),
-    changeRectangleSize(secondRectangleWithPaddings, -Math.round(CONNECTION_LINE_WIDTH / 2))
+    changeRectangleSize(
+      firstRectangleWithPaddings,
+      -Math.round(CONNECTION_LINE_WIDTH / 2)
+    ),
+    changeRectangleSize(
+      secondRectangleWithPaddings,
+      -Math.round(CONNECTION_LINE_WIDTH / 2)
+    )
   );
 
-  return [cPoint1.point, ...path, cPoint2.point];
+  const { path: endPath } = dijkstra(
+    filtered,
+    filtered.findIndex((p) => p.x === endPoint.x && p.y === endPoint.y),
+    filtered.findIndex((p) => p.x === startPoint.x && p.y === startPoint.y),
+    changeRectangleSize(
+      firstRectangleWithPaddings,
+      -Math.round(CONNECTION_LINE_WIDTH / 2)
+    ),
+    changeRectangleSize(
+      secondRectangleWithPaddings,
+      -Math.round(CONNECTION_LINE_WIDTH / 2)
+    )
+  );
+
+  const fromStartToEndPath = [cPoint1.point, ...path, cPoint2.point];
+  const fromEndToStartPath = [cPoint2.point, ...endPath, cPoint1.point];
+
+  let angleChangesTimeStartEndPath = 0;
+  let angleChangesTimeEndStartPath = 0;
+
+  for (let i = 1; i < fromStartToEndPath.length - 1; i++) {
+    const currentStartToEndPoints = normalize(
+      subtractPoints(fromStartToEndPath[i - 1], fromStartToEndPath[i])
+    );
+    const nextStartToEndPoints = normalize(
+      subtractPoints(fromStartToEndPath[i], fromStartToEndPath[i + 1])
+    );
+
+    if (
+      angleBetween(currentStartToEndPoints, nextStartToEndPoints, true, false) >
+      0
+    ) {
+      angleChangesTimeStartEndPath += 1;
+    }
+  }
+
+  for (let i = 1; i < fromEndToStartPath.length - 1; i++) {
+    const currentEndToStartPoints = normalize(
+      subtractPoints(fromEndToStartPath[i - 1], fromEndToStartPath[i])
+    );
+    const nextEndToStartPoints = normalize(
+      subtractPoints(fromEndToStartPath[i], fromEndToStartPath[i + 1])
+    );
+
+    if (
+      angleBetween(currentEndToStartPoints, nextEndToStartPoints, true, false) >
+      0
+    ) {
+      angleChangesTimeEndStartPath += 1;
+    }
+  }
+
+  return angleChangesTimeStartEndPath < angleChangesTimeEndStartPath
+    ? fromStartToEndPath
+    : fromEndToStartPath;
 };
 
 export const changeRectangleSize = (r: Rect, changeBy: number) => {
